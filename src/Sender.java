@@ -1,10 +1,12 @@
 
 import java.io.*;
 import java.net.*;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class Sender {
-    public static void main(String[] args) {
+    ArrayList<String> IPList ;
+    public Sender(String[] args) {
         System.out.println("PROGRAMME CLIENT");
 
         // Vérification des arguments
@@ -14,10 +16,10 @@ public class Sender {
         }
 
         String username = args[0];
-        CarnetAdresses gestion = new CarnetAdresses();
+        CarnetAdresses carnetAdresses = new CarnetAdresses();
 
         // Charger les adresses IP depuis le fichier
-        try (BufferedReader reader = new BufferedReader(new FileReader("adresses.txt"))) {
+        /*try (BufferedReader reader = new BufferedReader(new FileReader("adresses.txt"))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 gestion.listeIP.add(line.trim());
@@ -25,9 +27,9 @@ public class Sender {
         } catch (IOException e) {
             System.err.println("Erreur lors de la lecture du fichier adresses.txt: " + e.getMessage());
             return;
-        }
-
-        System.out.println("Adresses IP chargées : " + gestion.listeIP);
+        }*/
+        IPList  = carnetAdresses.getListeIP();
+        System.out.println("Adresses IP chargées : " + IPList);
 
         try (Scanner scanner = new Scanner(System.in)) {
             while (true) {
@@ -41,22 +43,22 @@ public class Sender {
                 }
 
                 // Créer un objet Message
-                Message msg = new Message(inputMessage, username);
+               // Message msg = new Message(username, inputMessage, Integer.toString(inputMessage.length()), LocalDateTime.now().toString());
 
                 // Envoyer le message à toutes les adresses IP
-                for (String ip : gestion.listeIP) {
+                for (String ip : IPList) {
                     try (Socket socket = new Socket(ip, 1048);
                             BufferedWriter b_writer = new BufferedWriter(
                                     new OutputStreamWriter(socket.getOutputStream()))) {
 
                         // Écriture des données
-                        b_writer.write(msg.getUsername());
+                        b_writer.write(username);
                         b_writer.newLine();
-                        b_writer.write(msg.getDate());
+                        b_writer.write(LocalDateTime.now().toString());
                         b_writer.newLine();
-                        b_writer.write(String.valueOf(msg.getLength()));
+                        b_writer.write(Integer.toString(inputMessage.length()));
                         b_writer.newLine();
-                        b_writer.write(msg.getMessage());
+                        b_writer.write(inputMessage);
                         b_writer.newLine();
                         b_writer.flush();
 
@@ -67,6 +69,7 @@ public class Sender {
                     }
                 }
             }
+            System.exit(0);
         }
     }
 }

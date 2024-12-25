@@ -20,14 +20,17 @@ public class CarnetAdresses {
 
     // Méthode pour charger les adresses IP depuis un fichier
     private void getIPListFromFile(String fichier) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(fichier))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                listeIP.add(line.trim());
+        try {
+            FileInputStream fileInputStream = new FileInputStream(fichier);
+            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
+            BufferedReader reader = new BufferedReader(inputStreamReader);
+
+            while (reader.ready()) {
+                listeIP.add(reader.readLine().trim());
             }
         } catch (FileNotFoundException e) {
             System.err.println("Fichier " + fichier + " introuvable !");
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.err.println("Erreur lors de la lecture du fichier " + fichier + ": " + e.getMessage());
         }
     }
