@@ -6,9 +6,11 @@ import java.util.*;
 
 public class Sender {
     ArrayList<String> IPList ;
-    public Sender(String[] args) {
-        System.out.println("PROGRAMME CLIENT");
+    private final static int RECEIVER_PORT = 2024;
 
+    public Sender(String[] args)  {
+
+        System.out.println("PROGRAMME CLIENT");
         // Vérification des arguments
         if (args.length < 1) {
             System.out.println("Usage: java Client <username>");
@@ -16,60 +18,69 @@ public class Sender {
         }
 
         String username = args[0];
+        System.out.println("Username: " + username);
+
+        // get the Address_Book
         CarnetAdresses carnetAdresses = new CarnetAdresses();
 
-        // Charger les adresses IP depuis le fichier
-        /*try (BufferedReader reader = new BufferedReader(new FileReader("adresses.txt"))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                gestion.listeIP.add(line.trim());
-            }
-        } catch (IOException e) {
-            System.err.println("Erreur lors de la lecture du fichier adresses.txt: " + e.getMessage());
-            return;
-        }*/
+        // create reader for user message input
+        InputStreamReader inputStreamReader = new InputStreamReader(System.in);
+        BufferedReader userInput = new BufferedReader(inputStreamReader);
+
         IPList  = carnetAdresses.getListeIP();
         System.out.println("Adresses IP chargées : " + IPList);
 
-        try (Scanner scanner = new Scanner(System.in)) {
-            while (true) {
+        do {
+            try {
                 // Demander le message à l'utilisateur
                 System.out.print("Entrez votre message (ou tapez 'exit' pour quitter) : ");
-                String inputMessage = scanner.nextLine();
+                String userMessage = userInput.readLine();
 
-                if (inputMessage.equalsIgnoreCase("exit")) {
-                    System.out.println("Fermeture du programme client.");
-                    break;
-                }
+                if (userMessage.equalsIgnoreCase("exit")) break;
 
                 // Créer un objet Message
-               // Message msg = new Message(username, inputMessage, Integer.toString(inputMessage.length()), LocalDateTime.now().toString());
+                // Message msg = new Message(username, inputMessage, Integer.toString(inputMessage.length()), LocalDateTime.now().toString());
 
                 // Envoyer le message à toutes les adresses IP
                 for (String ip : IPList) {
-                    try (Socket socket = new Socket(ip, 1048);
-                            BufferedWriter b_writer = new BufferedWriter(
-                                    new OutputStreamWriter(socket.getOutputStream()))) {
+                    Socket socket = new Socket(ip, RECEIVER_PORT);
+                    BufferedWriter socketContent = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
-                        // Écriture des données
-                        b_writer.write(username);
-                        b_writer.newLine();
-                        b_writer.write(LocalDateTime.now().toString());
-                        b_writer.newLine();
-                        b_writer.write(Integer.toString(inputMessage.length()));
-                        b_writer.newLine();
-                        b_writer.write(inputMessage);
-                        b_writer.newLine();
-                        b_writer.flush();
+                    // Écriture des données
+                    socketContent.write(username);
+                    socketContent.newLine();
+                    socketContent.write(LocalDateTime.now().toString());
+                    socketContent.newLine();
+                    socketContent.write(Integer.toString(userMessage.length()));
+                    socketContent.newLine();
+                    socketContent.write(userMessage);
+                    socketContent.newLine();
+                    socketContent.flush();
 
-                        System.out.println("Message envoyé à " + ip);
-
-                    } catch (IOException e) {
-                        System.err.println("Erreur lors de l'envoi du message à " + ip + ": " + e.getMessage());
-                    }
-                }
+                    System.out.println("Message envoyé à " + ip);
+                    socket.close();
             }
+
+            }catch (Exception e){
+                System.err.println("Erreur lors de l'envoi du message " + e.getMessage());
+            }
+
+        }while (true);
+        // close inputStreamReader and the program
+        try {
+            inputStreamReader.close();
+            System.out.println("Fermeture du programme client.");
             System.exit(0);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+
+
+
     }
+
+    public static void main(String[] args) {
+        Sender sender = new Sender(args);
+    }
+
 }
