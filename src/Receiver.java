@@ -47,9 +47,7 @@ public class Receiver {
 
     // write the message in the log file
     private void logMessages(Message message) throws IOException {
-        FileOutputStream fileOutputStream = new FileOutputStream("messages.log");
-        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream);
-        BufferedWriter writer = new BufferedWriter(outputStreamWriter);
+        BufferedWriter writer = new BufferedWriter(new FileWriter("messages.log", true));
 
         writer.write(message.showMessage());
         writer.newLine();
