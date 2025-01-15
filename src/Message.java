@@ -12,7 +12,7 @@ public class Message {
         this.name = nom;
         this.message = message;
         this.messageSize = Integer.parseInt(messageSize);
-        this.dateTime = LocalDateTime.parse(dateTime);
+        this.dateTime = LocalDateTime.parse(dateTime.replace(' ','T'));
     }
 
     public String showMessage() {
@@ -54,7 +54,7 @@ public class Message {
 
     private String timeToString(LocalDateTime dateTime) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-        return dateTime.format(formatter);
+        return dateTime.format(formatter).replace(':','h');
     }
 
 

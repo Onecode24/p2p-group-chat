@@ -49,7 +49,7 @@ public class Sender {
                     // Écriture des données
                     socketContent.write(username);
                     socketContent.newLine();
-                    socketContent.write(LocalDateTime.now().toString());
+                    socketContent.write(LocalDateTime.now().toString().replace('T',' '));
                     socketContent.newLine();
                     socketContent.write(Integer.toString(userMessage.length()));
                     socketContent.newLine();
@@ -58,6 +58,7 @@ public class Sender {
                     socketContent.flush();
 
                     System.out.println("Message envoyé à " + ip);
+                    System.out.println("date format: " + LocalDateTime.now().toString().replace('T',' '));
                     socket.close();
             }
 
